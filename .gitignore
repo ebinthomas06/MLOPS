@@ -1,0 +1,121 @@
+# ==========================================
+# 1. Environment & Secrets 
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# ==========================================
+# 2. Project Runtime & Temp Storage
+# ==========================================
+# Temporary uploads, execution jobs, and generated models
+jobs/
+automlops/backend/jobs/
+*.pkl
+*.onnx
+*.joblib
+
+# Nginx local execution state
+nginx/logs/
+*.log
+
+# ==========================================
+# 3. Python & Backend (FastAPI, Pytest)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.nox/
+.hypothesis/
+
+# ==========================================
+# 4. ML Layer & Diagnostics (MLflow / Evidently)
+# ==========================================
+# Local MLflow artifact & database tracking storage
+mlruns/
+mlflow.db
+.evidently/
+catboost_info/
+
+# ==========================================
+# 5. Frontend & Node.js (React / Tailwind)
+# ==========================================
+automlops/frontend/node_modules/
+node_modules/
+automlops/frontend/build/
+automlops/frontend/dist/
+automlops/frontend/.next/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor/Tooling caches
+.eslintcache
+.stylelintcache
+.vite/
+
+# ==========================================
+# 6. IDEs, Editors & Operating System
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# VS Code & JetBrains IDEs
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
