@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # ============================================================
+  # 1. FastAPI Backend
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: automlops-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - SERVING_IMAGE=automlops-serving
+      - NGINX_CONF_PATH=/app/nginx/nginx.conf
+    volumes:
+      - ./backend:/app
+      - ./ml:/ml
+      - ./nginx:/app/nginx
+      - ./reports:/reports
+      - /var/run/docker.sock:/var/run/docker.sock # Allows backend to spin up Docker serving containers
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+
+  # ============================================================
+  # 2. Self-Hosted MLflow Tracking Server & Artifact Store
+  # ============================================================
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.1
+    container_name: automlops-mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      - BACKEND_STORE_URI=sqlite:////mlflow/mlflow.db
+      - DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    volumes:
+      - mlflow_data:/mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --default-artifact-root /mlflow/artifacts
+      --host 0.0.0.0
+      --port 5000
+    restart: unless-stopped
+
+  # ============================================================
+  # 3. Nginx Reverse Proxy / Stable Gateway
+  # ============================================================
+  nginx:
+    image: nginx:alpine
+    container_name: automlops-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ============================================================
+  # 4. Cloudflare Tunnel (Optional / Production Public Ingress)
+  # When TUNNEL_TOKEN is set in .env, this exposes the Nginx
+  # serving gateway to a stable public HTTPS URL automatically.
+  # ============================================================
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: automlops-tunnel
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN:-}
+    profiles:
+      - tunnel
+
+volumes:
+  mlflow_data:
+    name: automlops_mlflow_data
